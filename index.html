@@ -3,312 +3,136 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EmuTalk Deluxe Full Fun Chat</title>
+<title>EmuTalk Chat</title>
 <style>
-  /* Base and layouts */
   body {
-    margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--bg-color,#111);
-    color: var(--text-color,#eee);
-    --bg-color: #111;
-    --text-color: #eee;
-    --accent-color: #0099ff;
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f5f5f5;
+    display: flex; flex-direction: column; height: 100vh;
   }
-  #login, #chat { display: none; height: 100vh; }
-  .active { display: flex; }
-  #login {
-    justify-content: center; align-items: center; flex-direction: column;
+  header {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 10px 15px;
+    display: flex; align-items: center; justify-content: space-between;
   }
-  #chat {
-    flex-direction: column;
-  }
-  #header {
-    background: var(--accent-color);
-    padding: 12px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-weight: bold;
-    user-select: none;
-  }
-  #header button {
-    background: transparent;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-weight: 600;
-    margin-left: 10px;
-    padding: 6px 12px;
+  header input[type="text"] {
+    font-size: 16px;
+    padding: 5px 8px;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
+    border: none;
+    width: 180px;
   }
-  #header button:hover {
-    background: rgba(255 255 255 / 0.2);
-  }
-  #body {
+  main {
     flex: 1;
     display: flex;
-    background: var(--bg-color);
     overflow: hidden;
   }
   #users {
-    width: 220px;
-    background: #222;
-    color: #ccc;
-    padding: 15px;
+    width: 180px;
+    background: #ecf0f1;
+    padding: 10px;
+    box-sizing: border-box;
     overflow-y: auto;
-    border-right: 1px solid #333;
+    border-right: 1px solid #bdc3c7;
   }
-  #users h4 {
-    margin-top: 0; margin-bottom: 10px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 4px;
+  #users h3 {
+    margin-top: 0;
+    font-weight: normal;
+    color: #34495e;
   }
-  #user-list {
+  #users ul {
     list-style: none;
-    margin: 0; padding: 0;
+    padding: 0; margin: 0;
   }
-  #user-list li {
-    margin-bottom: 6px;
-    cursor: default;
-    user-select: none;
-    transition: color 0.3s;
+  #users li {
+    padding: 6px 4px;
+    border-bottom: 1px solid #bdc3c7;
+    color: #2c3e50;
+    font-weight: 600;
   }
-  #user-list li.rainbow {
-    animation: rainbowCycle 6s linear infinite;
-  }
-  #chatbox {
+  #chat {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: var(--bg-color);
+    padding: 10px;
+    box-sizing: border-box;
   }
   #messages {
     flex: 1;
-    padding: 15px;
     overflow-y: auto;
-    font-size: 1rem;
-    line-height: 1.3;
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #bdc3c7;
   }
-  #messages div.message {
+  #messages .message {
     margin-bottom: 8px;
-    opacity: 0.95;
-    border-radius: 6px;
-    padding: 8px 12px;
-    background: rgba(0 153 255 / 0.12);
-    animation: fadeInMessage 0.3s ease forwards;
-    user-select: text;
-    position: relative;
   }
-  #messages div.message .username {
-    font-weight: 700;
-    margin-right: 8px;
-    user-select: none;
+  #messages .message strong {
+    color: #2980b9;
   }
-  #messages div.message.rainbow .username {
-    animation: rainbowCycle 5s linear infinite;
-  }
-  #messages div.message.emoji-rain {
-    position: relative;
-    overflow: visible;
-  }
-  #input {
+  form {
+    margin-top: 10px;
     display: flex;
-    border-top: 1px solid #333;
-    padding: 10px 15px;
-    background: #1a1a1a;
   }
-  #input input {
+  form input[type="text"] {
     flex: 1;
-    padding: 10px 14px;
-    border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    background: #222;
-    color: #eee;
-    outline-offset: -2px;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid #bdc3c7;
+    border-right: none;
+    outline: none;
   }
-  #input button {
-    margin-left: 10px;
-    padding: 10px 16px;
-    background: var(--accent-color);
-    border: none;
-    border-radius: 4px;
-    font-weight: 700;
+  form button {
+    padding: 8px 15px;
+    font-size: 16px;
+    border-radius: 0 4px 4px 0;
+    border: 1px solid #bdc3c7;
+    background: #2980b9;
     color: white;
     cursor: pointer;
-    transition: background-color 0.25s ease;
   }
-  #input button:hover {
-    background: #007acc;
-  }
-
-  /* Panels */
-  .panel {
-    position: fixed;
-    top: 50px;
-    right: 0;
-    width: 320px;
-    height: calc(100vh - 50px);
-    background: #222;
-    color: #ddd;
-    overflow-y: auto;
-    padding: 15px;
-    border-left: 2px solid #444;
-    display: none;
-    z-index: 100;
-  }
-  .panel.active {
-    display: block;
-  }
-  .panel h3 {
-    margin-top: 0;
-    border-bottom: 1px solid #444;
-    padding-bottom: 8px;
-  }
-  .toggle {
-    margin: 10px 0;
-  }
-  .toggle label {
-    cursor: pointer;
-  }
-  .toggle input[type="checkbox"] {
-    margin-right: 8px;
-  }
-
-  /* On-screen keyboard container */
-  #keybd {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #222;
-    display: none;
-    box-shadow: 0 -3px 10px rgb(0 0 0 / 0.7);
-    z-index: 200;
-    padding: 5px;
-  }
-
-  /* Animations */
-  @keyframes fadeInMessage {
-    from { opacity: 0; transform: translateY(5px);}
-    to { opacity: 0.95; transform: translateY(0);}
-  }
-  @keyframes rainbowCycle {
-    0%{color:hsl(0,100%,70%)}
-    14%{color:hsl(60,100%,70%)}
-    28%{color:hsl(120,100%,70%)}
-    42%{color:hsl(180,100%,70%)}
-    56%{color:hsl(240,100%,70%)}
-    70%{color:hsl(300,100%,70%)}
-    84%{color:hsl(360,100%,70%)}
-    100%{color:hsl(0,100%,70%)}
-  }
-
-  /* Cursor trail dots */
-  .trail-dot {
-    position: fixed;
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent-color);
-    pointer-events: none;
-    opacity: 0.7;
-    user-select: none;
-    animation: trailFade 1s forwards;
-    z-index: 9999;
-  }
-  @keyframes trailFade {
-    from {opacity: 0.7; transform: scale(1);}
-    to {opacity: 0; transform: scale(0);}
+  form button:hover {
+    background: #3498db;
   }
 </style>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<!-- Simple-Keyboard -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css" />
-<script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
-
-<!-- Canvas Confetti -->
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
+</head>
 <body>
 
-  <!-- LOGIN SCREEN -->
-  <div id="login" class="active">
-    <h2>Welcome to EmuTalk Deluxe</h2>
-    <input id="nameInput" placeholder="Enter your username" autocomplete="off" />
-    <button onclick="login()">Join Chat</button>
+<header>
+  <div>
+    Name: <input type="text" id="username" maxlength="20" />
   </div>
+</header>
 
-  <!-- CHAT SCREEN -->
-  <div id="chat">
-    <div id="header">
-      <div>EmuTalk Deluxe</div>
-      <div>
-        <button onclick="togglePanel('settings')">Settings</button>
-        <button onclick="togglePanel('rules')">Rules</button>
-        <button onclick="changeName()">Change Name</button>
-      </div>
-    </div>
-    <div id="body">
-      <div id="users">
-        <h4>Users Online</h4>
-        <ul id="user-list"></ul>
-      </div>
-      <div id="chatbox">
-        <div id="messages"></div>
-        <form id="input">
-          <input id="msg" placeholder="Type your message…" autocomplete="off" />
-          <button type="submit">Send</button>
-        </form>
-      </div>
-    </div>
-  </div>
+<main>
+  <aside id="users">
+    <h3>Users</h3>
+    <ul id="userList"></ul>
+  </aside>
 
-  <!-- SETTINGS PANEL -->
-  <div id="settings" class="panel">
-    <h3>Settings</h3>
+  <section id="chat">
+    <div id="messages"></div>
+    <form id="msgForm">
+      <input type="text" id="msgInput" placeholder="Type a message..." autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </section>
+</main>
 
-    <div class="toggle"><label><input type="checkbox" id="setTypingSounds"> Typing Sounds</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setDarkMode"> Dark Mode</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setRainbowNames"> Rainbow Usernames</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setVirtualKeyboard"> On-Screen Keyboard</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setParticleEffects"> Particle Effects on Messages</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setEmojiRain"> Emoji Rain on Messages</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setMessageAnimations"> Message Fade Animations</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setCursorTrails"> Cursor Trails</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setSoundEffects"> Sound Effects on Send</label></div>
-    <div class="toggle"><label><input type="checkbox" id="setAutoSpammer"> Auto-Spammer (Spam every 10s)</label></div>
-
-    <!-- Add more toggles here to reach 50+ -->
-    <p><em>More settings coming soon!</em></p>
-  </div>
-
-  <!-- RULES PANEL -->
-  <div id="rules" class="panel">
-    <h3>Chat Rules</h3>
-    <ul>
-      <li>No hate speech, including the N-word</li>
-      <li>Swearing allowed in moderation</li>
-      <li>No spamming or flooding</li>
-      <li>No impersonation of others</li>
-      <li>Respect everyone and keep it fun!</li>
-      <li>Violations may lead to removal</li>
-    </ul>
-  </div>
-
-  <!-- On-screen Keyboard -->
-  <div id="keybd"></div>
+<!-- Firebase SDK v7.20.0 compatibility libraries -->
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-database.js"></script>
 
 <script>
-  // Firebase config (use your real config here)
+  // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyCma57Lei7tJb8QQfGhrpajyUZDJUZv2jY",
     authDomain: "emutalk-45883.firebaseapp.com",
-    databaseURL: "https://emutalk-45883-default-rtdb.firebaseio.com",
+    databaseURL: "https://emutalk-45883-default-rtdb.firebaseio.com", // You must add this in Firebase Realtime DB
     projectId: "emutalk-45883",
     storageBucket: "emutalk-45883.appspot.com",
     messagingSenderId: "346180779740",
@@ -317,345 +141,86 @@
   };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  const usersRef = db.ref('users');
-  const msgsRef = db.ref('messages');
 
-  // Local Storage Keys
-  const LS_ID = "emuTalkID";
-  const LS_NAME = "emuTalkName";
-  const LS_SETTINGS_PREFIX = "emuTalkSetting_";
+  // Elements
+  const usernameInput = document.getElementById('username');
+  const userListEl = document.getElementById('userList');
+  const messagesEl = document.getElementById('messages');
+  const msgForm = document.getElementById('msgForm');
+  const msgInput = document.getElementById('msgInput');
 
   // User state
-  let userId = localStorage.getItem(LS_ID);
-  if (!userId) {
-    userId = `emu-${Date.now()}-${Math.floor(Math.random() * 1e5)}`;
-    localStorage.setItem(LS_ID, userId);
-  }
-  let username = localStorage.getItem(LS_NAME) || '';
+  let username = localStorage.getItem('chatUsername') || 'Anonymous';
 
-  // Settings default
-  const settings = {
-    typingSounds: false,
-    darkMode: false,
-    rainbowNames: false,
-    virtualKeyboard: false,
-    particleEffects: false,
-    emojiRain: false,
-    messageAnimations: true,
-    cursorTrails: false,
-    soundEffects: false,
-    autoSpammer: false
-  };
-
-  // Load saved settings from localStorage
-  Object.keys(settings).forEach(key => {
-    let val = localStorage.getItem(LS_SETTINGS_PREFIX + key);
-    if (val !== null) {
-      settings[key] = (val === "true");
-    }
+  // Save username input
+  usernameInput.value = username;
+  usernameInput.addEventListener('change', () => {
+    username = usernameInput.value.trim() || 'Anonymous';
+    localStorage.setItem('chatUsername', username);
+    updateUserPresence();
   });
 
-  // Panels toggle
-  function togglePanel(id) {
-    const panel = document.getElementById(id);
-    if (panel.classList.contains('active')) panel.classList.remove('active');
-    else panel.classList.add('active');
+  // Track presence in users list
+  // Generate a persistent-ish id stored locally:
+  let userId = localStorage.getItem('chatUserId');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).slice(2,10);
+    localStorage.setItem('chatUserId', userId);
   }
 
-  // Login flow
-  function login() {
-    const nameInput = document.getElementById('nameInput');
-    let name = nameInput.value.trim();
-    if (!name) {
-      alert("Please enter a username");
-      return;
-    }
-    username = name;
-    localStorage.setItem(LS_NAME, username);
-    startChat();
+  const userRef = db.ref('users/' + userId);
+  function updateUserPresence() {
+    userRef.set({ name: username, lastSeen: Date.now() });
   }
+  updateUserPresence();
 
-  // Change name prompt
-  function changeName() {
-    let newName = prompt("Enter your new username", username);
-    if (newName) {
-      newName = newName.trim();
-      if (newName) {
-        username = newName;
-        localStorage.setItem(LS_NAME, username);
-        if (userId) {
-          usersRef.child(userId).update({name: username});
-        }
-      }
-    }
-  }
+  // Remove user on disconnect
+  userRef.onDisconnect().remove();
 
-  // Start chat UI & Firebase
-  function startChat() {
-    document.getElementById('login').classList.remove('active');
-    document.getElementById('chat').classList.add('active');
+  // Update presence every 30 sec
+  setInterval(updateUserPresence, 30000);
 
-    // Set user in users list with onDisconnect removal
-    usersRef.child(userId).set({name: username, id: userId});
-    usersRef.child(userId).onDisconnect().remove();
-
-    listenUsers();
-    listenMessages();
-  }
-
-  // Listen for users updates
-  function listenUsers() {
-    usersRef.on('value', snapshot => {
-      const users = snapshot.val() || {};
-      const ul = document.getElementById('user-list');
-      ul.innerHTML = '';
-      Object.values(users).forEach(user => {
-        const li = document.createElement('li');
-        li.textContent = `${user.name} (${user.id.slice(-4)})`;
-        if (settings.rainbowNames) {
-          li.classList.add('rainbow');
-        }
-        ul.appendChild(li);
-      });
+  // Listen for user list changes
+  db.ref('users').on('value', snapshot => {
+    const users = snapshot.val() || {};
+    userListEl.innerHTML = '';
+    Object.values(users).forEach(u => {
+      const li = document.createElement('li');
+      li.textContent = u.name || 'Anonymous';
+      userListEl.appendChild(li);
     });
-  }
+  });
 
-  // Listen for messages updates
-  function listenMessages() {
-    msgsRef.limitToLast(300).on('child_added', snapshot => {
-      const data = snapshot.val();
-      if (!data) return;
-      const container = document.getElementById('messages');
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message');
-      if (settings.messageAnimations) msgDiv.style.animation = 'fadeInMessage 0.3s ease forwards';
-      if (settings.rainbowNames) msgDiv.classList.add('rainbow');
+  // Listen for new messages
+  db.ref('messages').limitToLast(100).on('child_added', snapshot => {
+    const msg = snapshot.val();
+    if (!msg) return;
+    const div = document.createElement('div');
+    div.classList.add('message');
+    div.innerHTML = `<strong>${escapeHTML(msg.user)}:</strong> ${escapeHTML(msg.text)}`;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
 
-      // Username span
-      const unameSpan = document.createElement('span');
-      unameSpan.textContent = data.user + ": ";
-      unameSpan.className = 'username';
-      if (settings.rainbowNames) unameSpan.style.animation = 'rainbowCycle 5s linear infinite';
-      msgDiv.appendChild(unameSpan);
-
-      // Message text span
-      const textSpan = document.createElement('span');
-      textSpan.textContent = data.text;
-      msgDiv.appendChild(textSpan);
-
-      container.appendChild(msgDiv);
-      container.scrollTop = container.scrollHeight;
-
-      // Play typing sounds if enabled and message from self
-      if (settings.typingSounds && data.user === username) {
-        playTypingSound();
-      }
-      // Play sound effects on send
-      if (settings.soundEffects && data.user === username) {
-        playSendSound();
-      }
-
-      // Particle confetti effect
-      if (settings.particleEffects) {
-        confetti({
-          particleCount: 20,
-          spread: 60,
-          origin: { y: 0.7 }
-        });
-      }
-
-      // Emoji rain effect on message
-      if (settings.emojiRain) {
-        emojiRainEffect(msgDiv);
-      }
-    });
-  }
-
-  // Submit message handler
-  document.getElementById('input').onsubmit = e => {
+  // Send message
+  msgForm.addEventListener('submit', e => {
     e.preventDefault();
-    const input = document.getElementById('msg');
-    const val = input.value.trim();
-    if (!val) return;
-    msgsRef.push({user: username, text: val, ts: Date.now()});
-    input.value = '';
-  };
+    const text = msgInput.value.trim();
+    if (!text) return;
+    db.ref('messages').push({
+      user: username,
+      text: text,
+      ts: Date.now()
+    });
+    msgInput.value = '';
+  });
 
-  // Typing sound
-  function playTypingSound() {
-    const audio = new Audio('https://actions.google.com/sounds/v1/keyboard/typewriter_key_press.ogg');
-    audio.volume = 0.12;
-    audio.play();
-  }
-  // Send sound
-  function playSendSound() {
-    const audio = new Audio('https://actions.google.com/sounds/v1/cartoon/cartoon_boing.ogg');
-    audio.volume = 0.15;
-    audio.play();
-  }
-
-  // Cursor trail effect
-  if (settings.cursorTrails) initCursorTrails();
-  function initCursorTrails() {
-    document.addEventListener('mousemove', e => {
-      let dot = document.createElement('div');
-      dot.className = 'trail-dot';
-      dot.style.left = e.clientX + 'px';
-      dot.style.top = e.clientY + 'px';
-      document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 1000);
+  // Helper to escape HTML (simple)
+  function escapeHTML(str) {
+    return str.replace(/[&<>"']/g, function(m) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
     });
   }
-
-  // Emoji rain effect helper
-  function emojiRainEffect(container) {
-    const emojis = ['🎉','✨','💥','🔥','🌈','💫','🎊'];
-    const count = 7;
-    for (let i=0; i<count; i++) {
-      let span = document.createElement('span');
-      span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-      span.style.position = 'absolute';
-      span.style.left = Math.random() * 90 + '%';
-      span.style.top = '0';
-      span.style.fontSize = '20px';
-      span.style.pointerEvents = 'none';
-      span.style.userSelect = 'none';
-      span.style.opacity = '0.8';
-      span.style.animation = `emojiFall 2s ease forwards`;
-      container.appendChild(span);
-
-      // Remove after animation
-      setTimeout(() => span.remove(), 2000);
-    }
-  }
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes emojiFall {
-      to { transform: translateY(150px) rotate(360deg); opacity: 0; }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Auto spammer function
-  let autoSpamInterval = null;
-  function startAutoSpam() {
-    if (autoSpamInterval) return;
-    autoSpamInterval = setInterval(() => {
-      const spamMessages = [
-        "Hello EmuTalk! 🎉",
-        "Enjoying the chat? 😎",
-        "Don't forget to follow the rules!",
-        "✨ Keep the vibes good! ✨",
-        "Anyone up for music? 🎵"
-      ];
-      const msg = spamMessages[Math.floor(Math.random()*spamMessages.length)];
-      msgsRef.push({user: username, text: msg, ts: Date.now()});
-    }, 10000);
-  }
-  function stopAutoSpam() {
-    if (autoSpamInterval) {
-      clearInterval(autoSpamInterval);
-      autoSpamInterval = null;
-    }
-  }
-
-  // Settings UI init and handling
-  function initSettingsUI() {
-    Object.keys(settings).forEach(key => {
-      const el = document.getElementById("set"+capitalizeFirstLetter(camelToWords(key).replace(/\s/g,'')));
-      if (el) {
-        el.checked = settings[key];
-        el.onchange = () => {
-          settings[key] = el.checked;
-          localStorage.setItem(LS_SETTINGS_PREFIX + key, settings[key]);
-          applySetting(key, settings[key]);
-        };
-      }
-    });
-  }
-  function camelToWords(str) {
-    return str.replace(/([A-Z])/g, ' $1').trim();
-  }
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  function applySetting(key, val) {
-    switch(key) {
-      case 'darkMode':
-        if (val) {
-          document.body.style.setProperty('--bg-color', '#111');
-          document.body.style.setProperty('--text-color', '#eee');
-          document.body.style.setProperty('--accent-color', '#0099ff');
-        } else {
-          document.body.style.setProperty('--bg-color', '#eee');
-          document.body.style.setProperty('--text-color', '#111');
-          document.body.style.setProperty('--accent-color', '#007acc');
-        }
-        break;
-      case 'rainbowNames':
-        updateUserListRainbow(val);
-        break;
-      case 'virtualKeyboard':
-        toggleVirtualKeyboard(val);
-        break;
-      case 'cursorTrails':
-        if (val) initCursorTrails();
-        break;
-      case 'autoSpammer':
-        if (val) startAutoSpam();
-        else stopAutoSpam();
-        break;
-      // Particle effects, emoji rain, typing sounds, sound effects, message animations are handled live
-    }
-  }
-
-  function updateUserListRainbow(enabled) {
-    const ul = document.getElementById('user-list');
-    Array.from(ul.children).forEach(li => {
-      if (enabled) li.classList.add('rainbow');
-      else li.classList.remove('rainbow');
-    });
-  }
-
-  // Virtual keyboard
-  let keyboard = null;
-  function toggleVirtualKeyboard(show) {
-    const kbContainer = document.getElementById('keybd');
-    if (show) {
-      kbContainer.style.display = 'block';
-      if (!keyboard) {
-        keyboard = new Keyboard({
-          onKeyPress: button => {
-            const input = document.getElementById('msg');
-            if (button === "{bksp}") {
-              input.value = input.value.slice(0, -1);
-            } else if (button === "{enter}") {
-              document.getElementById('input').dispatchEvent(new Event('submit'));
-            } else {
-              input.value += button;
-            }
-            input.focus();
-          },
-          theme: "hg-theme-default hg-layout-default",
-        });
-      }
-    } else {
-      kbContainer.style.display = 'none';
-    }
-  }
-
-  // Init
-  window.onload = () => {
-    // If user already logged in, start chat automatically
-    if (username) {
-      document.getElementById('nameInput').value = username;
-      startChat();
-    }
-    initSettingsUI();
-    Object.entries(settings).forEach(([k,v]) => applySetting(k, v));
-  };
-
 </script>
 
 </body>
