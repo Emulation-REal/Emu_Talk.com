@@ -6,307 +6,405 @@
 <title>EmuTalk Chat</title>
 <style>
   /* Reset & base */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
   * {
     box-sizing: border-box;
   }
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0; padding: 0;
-    background: #fefefe;
-    display: flex; flex-direction: column; height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background: #fafafa;
     color: #222;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
   header {
-    background: #34495e;
-    color: #ecf0f1;
-    padding: 10px 15px;
-    display: flex; align-items: center; justify-content: space-between;
+    background: #4A90E2;
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgb(74 144 226 / 0.4);
     user-select: none;
   }
-  header .left-section {
-    display: flex; align-items: center; gap: 12px;
-  }
-  header label {
+  header h1 {
     font-weight: 600;
-    margin-right: 6px;
-    font-size: 14px;
+    margin: 0;
+    font-size: 1.4rem;
+    letter-spacing: 1.1px;
   }
-  header input[type="text"] {
-    font-size: 16px;
-    padding: 6px 10px;
-    border-radius: 4px;
+  #username {
+    background: transparent;
     border: none;
-    width: 160px;
+    border-bottom: 2px solid transparent;
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    max-width: 150px;
+    cursor: text;
     outline-offset: 2px;
+    transition: border-color 0.2s;
   }
-  header input[type="text"]:focus {
-    outline: 2px solid #2980b9;
+  #username:focus {
+    border-color: #ffcc00;
+    background: rgba(255 255 255 / 0.15);
+    border-radius: 3px;
   }
-  header button {
-    background: #2980b9;
+  #controls button {
+    background: rgba(255 255 255 / 0.25);
     border: none;
     color: white;
     font-weight: 600;
-    padding: 6px 12px;
-    margin-left: 10px;
+    padding: 8px 14px;
+    margin-left: 12px;
     border-radius: 4px;
     cursor: pointer;
-    transition: background 0.25s ease;
+    transition: background 0.2s;
   }
-  header button:hover {
-    background: #3498db;
+  #controls button:hover {
+    background: rgba(255 255 255 / 0.45);
   }
 
   main {
     flex: 1;
     display: flex;
     overflow: hidden;
+    background: white;
   }
-  #users {
-    width: 200px;
-    background: #ecf0f1;
-    padding: 10px;
-    box-sizing: border-box;
+  #userList {
+    width: 220px;
+    border-right: 1px solid #ddd;
+    padding: 20px 12px 0;
     overflow-y: auto;
-    border-right: 1px solid #bdc3c7;
+    background: #f5f7fa;
   }
-  #users h3 {
-    margin-top: 0;
-    font-weight: 700;
-    color: #2c3e50;
-    border-bottom: 2px solid #2980b9;
-    padding-bottom: 6px;
-    user-select: none;
-  }
-  #users ul {
-    list-style: none;
-    padding: 0; margin: 0;
-  }
-  #users li {
-    padding: 8px 6px;
-    border-bottom: 1px solid #bdc3c7;
-    color: #34495e;
+  #userList h2 {
     font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    font-size: 1.1rem;
+    margin: 0 0 12px 8px;
+    color: #444;
   }
-  #chat {
+  #userList ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #userList li {
+    padding: 8px 12px;
+    margin-bottom: 4px;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+    font-weight: 500;
+    color: #333;
+    display: flex;
+    align-items: center;
+  }
+  #userList li.me {
+    font-weight: 700;
+    color: #4A90E2;
+    background: #e7f0ff;
+  }
+  #userList li .userid {
+    font-size: 0.75rem;
+    color: #999;
+    margin-left: auto;
+    font-family: monospace;
+  }
+
+  #chatContainer {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 12px;
-    box-sizing: border-box;
   }
   #messages {
     flex: 1;
+    padding: 20px 24px;
     overflow-y: auto;
-    background: #fff;
-    padding: 14px;
-    border-radius: 6px;
-    border: 1px solid #bdc3c7;
     font-size: 15px;
-    line-height: 1.35;
+    line-height: 1.4;
   }
-  #messages .message {
-    margin-bottom: 12px;
+  .message {
+    margin-bottom: 14px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eee;
   }
-  #messages .message strong {
-    color: #2980b9;
+  .message .user {
+    font-weight: 600;
+    color: #4A90E2;
+    margin-bottom: 4px;
   }
-  form {
-    margin-top: 12px;
-    display: flex;
-    gap: 6px;
+  .message .time {
+    font-size: 0.7rem;
+    color: #999;
+    margin-left: 8px;
+    font-weight: 400;
   }
-  form input[type="text"] {
-    flex: 1;
-    padding: 10px 12px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: 1px solid #bdc3c7;
-    outline-offset: 2px;
-    transition: border-color 0.2s ease;
+  .message .text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
-  form input[type="text"]:focus {
-    border-color: #2980b9;
+  .mention {
+    background-color: #fffa90;
+    border-radius: 3px;
+    padding: 0 3px;
   }
-  form button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 6px;
-    border: none;
-    background: #2980b9;
-    color: white;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.25s ease;
-  }
-  form button:hover {
-    background: #3498db;
+  .system-message {
+    font-style: italic;
+    color: #777;
+    text-align: center;
+    margin: 12px 0;
   }
 
-  /* Modal backgrounds */
-  .modal-bg {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 9999;
+  #inputArea {
+    padding: 14px 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
     align-items: center;
+    background: #fafafa;
+  }
+  #messageInput {
+    flex: 1;
+    font-size: 1rem;
+    padding: 10px 14px;
+    border: 1.8px solid #ccc;
+    border-radius: 6px;
+    outline-offset: 2px;
+    transition: border-color 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  #messageInput:focus {
+    border-color: #4A90E2;
+  }
+  #sendBtn {
+    margin-left: 12px;
+    background: #4A90E2;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 11px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  #sendBtn:hover:not(:disabled) {
+    background: #357ABD;
+  }
+  #sendBtn:disabled {
+    background: #999;
+    cursor: default;
+  }
+
+  /* Modal base */
+  .modal-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
     justify-content: center;
-    padding: 16px;
+    align-items: center;
+    padding: 1rem;
+    z-index: 999;
   }
   .modal-bg.active {
     display: flex;
   }
-
-  /* Modal container */
   .modal {
     background: white;
-    border-radius: 10px;
     max-width: 600px;
+    width: 100%;
     max-height: 80vh;
-    overflow-y: auto;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    padding: 20px 24px;
-    position: relative;
-    font-size: 15px;
-    user-select: text;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgb(0 0 0 / 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
-  .modal h2 {
-    margin-top: 0;
-    font-weight: 700;
-    color: #2980b9;
-    user-select: text;
+  .modal header {
+    padding: 16px 24px;
+    background: #4A90E2;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .modal .close-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    border: none;
-    background: none;
-    font-size: 24px;
-    font-weight: 700;
-    color: #888;
+  .modal header .close-btn {
     cursor: pointer;
-    transition: color 0.2s ease;
+    font-size: 1.4rem;
+    line-height: 1;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    color: white;
+    padding: 0;
+    margin: 0;
     user-select: none;
+    transition: color 0.2s;
   }
-  .modal .close-btn:hover {
-    color: #2980b9;
+  .modal header .close-btn:hover {
+    color: #ffcc00;
   }
-  /* Settings content */
-  .settings-group {
-    margin-bottom: 18px;
+  .modal-content {
+    padding: 16px 24px;
+    overflow-y: auto;
+    flex: 1;
   }
-  .settings-group h3 {
-    margin-bottom: 8px;
-    color: #34495e;
+
+  /* Settings modal content */
+  #settingsForm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px 24px;
   }
   .settings-item {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
-    gap: 12px;
+    gap: 10px;
   }
   .settings-item label {
     flex: 1;
-    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.95rem;
+    user-select: none;
   }
-  .settings-item input[type="checkbox"],
-  .settings-item input[type="range"],
-  .settings-item select {
+  .settings-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     cursor: pointer;
   }
   .settings-item input[type="range"] {
-    width: 100px;
+    width: 100%;
+  }
+  .settings-item select {
+    padding: 4px 8px;
+    border-radius: 5px;
+    border: 1.5px solid #ccc;
+    font-size: 0.9rem;
+  }
+  .settings-item span.range-value {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 600;
+    color: #4A90E2;
   }
 
-  /* Scrollbar styling for user list and messages */
-  #users::-webkit-scrollbar,
-  #messages::-webkit-scrollbar,
-  .modal::-webkit-scrollbar {
-    width: 8px;
+  /* Rules modal content */
+  #rulesContent {
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #333;
   }
-  #users::-webkit-scrollbar-thumb,
-  #messages::-webkit-scrollbar-thumb,
-  .modal::-webkit-scrollbar-thumb {
-    background-color: #2980b9;
-    border-radius: 4px;
+  #rulesContent h3 {
+    margin-top: 1.2rem;
+    font-weight: 600;
+    color: #4A90E2;
+  }
+  #rulesContent ul {
+    margin-left: 20px;
+  }
+  #rulesContent li {
+    margin-bottom: 8px;
+  }
+
+  /* Typing indicator */
+  #typingIndicator {
+    font-style: italic;
+    color: #888;
+    font-size: 0.85rem;
+    padding-left: 20px;
+    height: 20px;
+    user-select: none;
   }
 </style>
 </head>
 <body>
-
 <header>
-  <div class="left-section">
-    <label for="username">Name:</label>
-    <input type="text" id="username" maxlength="20" title="Edit your username" autocomplete="off" />
-  </div>
-  <div class="right-section">
-    <button id="btnSettings" title="Settings">Settings ⚙️</button>
-    <button id="btnRules" title="Rules">Rules 📜</button>
+  <h1>EmuTalk Chat</h1>
+  <input id="username" maxlength="20" spellcheck="false" aria-label="Your username" title="Click to edit your name" />
+  <div id="controls">
+    <button id="btnRules" aria-label="Show chat rules">Rules</button>
+    <button id="btnSettings" aria-label="Open chat settings">Settings</button>
   </div>
 </header>
 
 <main>
-  <aside id="users" aria-label="Active users list">
-    <h3>Users</h3>
-    <ul id="userList" role="list"></ul>
+  <aside id="userList" aria-label="Online users">
+    <h2>Users</h2>
+    <ul id="usersUl"></ul>
   </aside>
-
-  <section id="chat" aria-label="Chat messages and input">
+  <section id="chatContainer" aria-label="Chat messages and input">
     <div id="messages" role="log" aria-live="polite" aria-relevant="additions"></div>
-    <form id="msgForm" aria-label="Send a message">
-      <input type="text" id="msgInput" placeholder="Type a message..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
+    <div id="typingIndicator" aria-live="assertive" aria-atomic="true"></div>
+    <div id="inputArea">
+      <input id="messageInput" type="text" placeholder="Type a message..." autocomplete="off" spellcheck="false" aria-label="Message input" />
+      <button id="sendBtn" disabled>Send</button>
+    </div>
   </section>
 </main>
 
-<!-- Settings Modal -->
-<div id="modalSettings" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" tabindex="-1">
-  <div class="modal">
-    <button class="close-btn" aria-label="Close settings modal" title="Close settings">&times;</button>
-    <h2 id="settingsTitle">Settings</h2>
-    <form id="settingsForm">
-      <!-- We'll fill these dynamically with JS -->
-    </form>
-  </div>
-</div>
-
 <!-- Rules Modal -->
 <div id="modalRules" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="rulesTitle" tabindex="-1">
-  <div class="modal">
-    <button class="close-btn" aria-label="Close rules modal" title="Close rules">&times;</button>
-    <h2 id="rulesTitle">Chat Rules</h2>
-    <ul>
-      <li>No use of the N-word or other hateful slurs.</li>
-      <li>Swearing is allowed but be respectful.</li>
-      <li>No spamming or flooding the chat.</li>
-      <li>No personal attacks or harassment.</li>
-      <li>Do not share personal information.</li>
-      <li>Follow all applicable laws and terms of service.</li>
-      <li>Keep content appropriate for a general audience.</li>
-      <li>Report violations to moderators if any.</li>
-      <li>Have fun and be kind!</li>
-    </ul>
+  <div class="modal" role="document">
+    <header>
+      <h2 id="rulesTitle">Chat Rules</h2>
+      <button class="close-btn" aria-label="Close rules modal">&times;</button>
+    </header>
+    <div class="modal-content" id="rulesContent" tabindex="0">
+      <p>Welcome to EmuTalk Chat! Please respect these rules to keep the chat friendly and enjoyable.</p>
+      <h3>Basic Rules</h3>
+      <ul>
+        <li>No use of the N-word or racial slurs.</li>
+        <li>Swearing is allowed but keep it reasonable.</li>
+        <li>No personal attacks or harassment.</li>
+        <li>Keep discussions respectful and on-topic.</li>
+        <li>No spamming or excessive flooding.</li>
+      </ul>
+      <h3>Behavior</h3>
+      <ul>
+        <li>Do not share personal information.</li>
+        <li>Respect moderators and their decisions.</li>
+        <li>No advertising or self-promotion.</li>
+        <li>Use channels and topics appropriately.</li>
+      </ul>
+      <h3>General</h3>
+      <ul>
+        <li>Have fun and be kind to others!</li>
+        <li>Report any rule violations to moderators.</li>
+        <li>Chat activity is logged for safety and moderation.</li>
+      </ul>
+    </div>
   </div>
 </div>
 
-<!-- Firebase SDK v7.20.0 compatibility libraries -->
-<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-database.js"></script>
+<!-- Settings Modal -->
+<div id="modalSettings" class="modal-bg" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" tabindex="-1">
+  <div class="modal" role="document">
+    <header>
+      <h2 id="settingsTitle">Chat Settings</h2>
+      <button class="close-btn" aria-label="Close settings modal">&times;</button>
+    </header>
+    <div class="modal-content">
+      <form id="settingsForm" aria-label="Chat settings form">
+        <!-- Settings inputs dynamically inserted here -->
+      </form>
+    </div>
+  </div>
+</div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script>
-  // Your Firebase config
+  // Your Firebase config here:
   const firebaseConfig = {
     apiKey: "AIzaSyCma57Lei7tJb8QQfGhrpajyUZDJUZv2jY",
     authDomain: "emutalk-45883.firebaseapp.com",
-    databaseURL: "https://emutalk-45883-default-rtdb.firebaseio.com",
     projectId: "emutalk-45883",
-    storageBucket: "emutalk-45883.appspot.com",
+    storageBucket: "emutalk-45883.firebasestorage.app",
     messagingSenderId: "346180779740",
     appId: "1:346180779740:web:dbfc2e746ee071957b3e19",
     measurementId: "G-84LK95DF4Q"
@@ -316,306 +414,500 @@
 
   // Elements
   const usernameInput = document.getElementById('username');
-  const userListEl = document.getElementById('userList');
+  const usersUl = document.getElementById('usersUl');
   const messagesEl = document.getElementById('messages');
-  const msgForm = document.getElementById('msgForm');
-  const msgInput = document.getElementById('msgInput');
+  const messageInput = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const typingIndicator = document.getElementById('typingIndicator');
 
-  // Modal elements
-  const modalSettings = document.getElementById('modalSettings');
-  const modalRules = document.getElementById('modalRules');
   const btnSettings = document.getElementById('btnSettings');
   const btnRules = document.getElementById('btnRules');
+  const modalSettings = document.getElementById('modalSettings');
+  const modalRules = document.getElementById('modalRules');
+  const settingsForm = document.getElementById('settingsForm');
 
-  // Persistent user data
-  let username = localStorage.getItem('chatUsername') || 'Anonymous';
-  let userId = localStorage.getItem('chatUserId');
+  // User ID - persistent in localStorage, 12-char hex
+  let userId = localStorage.getItem('emuTalkUserId');
   if (!userId) {
-    userId = 'user_' + Math.random().toString(36).slice(2, 10);
-    localStorage.setItem('chatUserId', userId);
+    userId = [...Array(12)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    localStorage.setItem('emuTalkUserId', userId);
   }
 
-  // Initialize username input
-  usernameInput.value = username;
-  usernameInput.addEventListener('change', () => {
-    username = usernameInput.value.trim() || 'Anonymous';
-    localStorage.setItem('chatUsername', username);
-    updateUserPresence();
-  });
-
-  // User presence reference & update
-  const userRef = db.ref('users/' + userId);
-  function updateUserPresence() {
-    userRef.set({ name: username, lastSeen: Date.now() });
+  // Username default and load/save
+  function loadUsername() {
+    const savedName = localStorage.getItem('emuTalkUsername');
+    if (savedName && savedName.trim()) {
+      usernameInput.value = savedName;
+    } else {
+      usernameInput.value = 'Anonymous';
+    }
   }
-  updateUserPresence();
+  function saveUsername(name) {
+    localStorage.setItem('emuTalkUsername', name);
+  }
+
+  loadUsername();
+
+  // Firebase refs
+  const usersRef = db.ref('users');
+  const messagesRef = db.ref('messages');
+  const typingRef = db.ref('typing');
+
+  // Presence: add user on connect, remove on disconnect
+  const userRef = usersRef.child(userId);
   userRef.onDisconnect().remove();
-  setInterval(updateUserPresence, 30000);
 
-  // Listen for user list changes
-  db.ref('users').on('value', snapshot => {
-    const users = snapshot.val() || {};
-    userListEl.innerHTML = '';
-    Object.values(users).forEach(u => {
-      const li = document.createElement('li');
-      li.textContent = u.name || 'Anonymous';
-      userListEl.appendChild(li);
+  function updateUserPresence(name) {
+    userRef.set({
+      name: name || 'Anonymous',
+      lastActive: Date.now(),
     });
+  }
+  updateUserPresence(usernameInput.value);
+
+  // Update presence on name change or periodically
+  usernameInput.addEventListener('change', e => {
+    const val = e.target.value.trim() || 'Anonymous';
+    usernameInput.value = val;
+    saveUsername(val);
+    updateUserPresence(val);
+  });
+  // Also update lastActive every minute
+  setInterval(() => {
+    updateUserPresence(usernameInput.value);
+  }, 60 * 1000);
+
+  // Listen for users list changes
+  usersRef.on('value', snapshot => {
+    usersUl.innerHTML = '';
+    const users = snapshot.val() || {};
+    for (const [id, user] of Object.entries(users)) {
+      const li = document.createElement('li');
+      li.textContent = user.name;
+      li.title = `User ID: ${id}`;
+      li.className = (id === userId) ? 'me' : '';
+      const spanId = document.createElement('span');
+      spanId.className = 'userid';
+      spanId.textContent = id;
+      li.appendChild(spanId);
+      usersUl.appendChild(li);
+    }
   });
 
-  // Listen for new messages
-  db.ref('messages').limitToLast(100).on('child_added', snapshot => {
+  // Message input enable/disable send button
+  messageInput.addEventListener('input', () => {
+    sendBtn.disabled = messageInput.value.trim().length === 0;
+    updateTyping(true);
+    resetTypingTimeout();
+  });
+
+  // Typing indicator handling
+  let typingTimeout = null;
+  function updateTyping(isTyping) {
+    if (isTyping) {
+      typingRef.child(userId).set(usernameInput.value);
+    } else {
+      typingRef.child(userId).remove();
+    }
+  }
+  function resetTypingTimeout() {
+    if (typingTimeout) clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      updateTyping(false);
+    }, 1500);
+  }
+
+  // Listen for typing users
+  typingRef.on('value', snapshot => {
+    const typingUsers = snapshot.val() || {};
+    const otherTyping = Object.entries(typingUsers)
+      .filter(([id]) => id !== userId)
+      .map(([, name]) => name);
+    if (otherTyping.length === 0) {
+      typingIndicator.textContent = '';
+    } else if (otherTyping.length === 1) {
+      typingIndicator.textContent = `${otherTyping[0]} is typing...`;
+    } else {
+      typingIndicator.textContent = `${otherTyping.join(', ')} are typing...`;
+    }
+  });
+
+  // Send message
+  function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text) return;
+    const msgData = {
+      userId,
+      name: usernameInput.value,
+      text,
+      timestamp: Date.now()
+    };
+    messagesRef.push(msgData);
+    messageInput.value = '';
+    sendBtn.disabled = true;
+    updateTyping(false);
+  }
+  sendBtn.addEventListener('click', sendMessage);
+  messageInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey && !sendBtn.disabled) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Display messages
+  messagesRef.limitToLast(200).on('child_added', snapshot => {
     const msg = snapshot.val();
     if (!msg) return;
+
+    // Format time
+    const dt = new Date(msg.timestamp);
+    const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Create message element
     const div = document.createElement('div');
-    div.classList.add('message');
-    div.innerHTML = `<strong>${escapeHTML(msg.user)}:</strong> ${escapeHTML(msg.text)}`;
+    div.className = 'message';
+    const userSpan = document.createElement('span');
+    userSpan.className = 'user';
+    userSpan.textContent = msg.name;
+    div.appendChild(userSpan);
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'time';
+    timeSpan.textContent = timeStr;
+    div.appendChild(timeSpan);
+    const textP = document.createElement('p');
+    textP.className = 'text';
+
+    // Highlight mentions (if username is mentioned)
+    const escapedName = usernameInput.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const mentionRegex = new RegExp(`\\b${escapedName}\\b`, 'gi');
+    const textWithMentions = msg.text.replace(mentionRegex, match => `<span class="mention">${match}</span>`);
+    textP.innerHTML = textWithMentions;
+    div.appendChild(textP);
     messagesEl.appendChild(div);
     messagesEl.scrollTop = messagesEl.scrollHeight;
   });
 
-  // Send message handler
-  msgForm.addEventListener('submit', e => {
-    e.preventDefault();
-    const text = msgInput.value.trim();
-    if (!text) return;
-    db.ref('messages').push({
-      user: username,
-      text,
-      ts: Date.now()
-    });
-    msgInput.value = '';
-  });
-
-  // Escape HTML to avoid injection
-  function escapeHTML(str) {
-    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  // System messages helper
+  function addSystemMessage(text) {
+    const div = document.createElement('div');
+    div.className = 'system-message';
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  // Modal open/close helpers
+  // Settings state keys & defaults (50+ toggles)
+  const defaultSettings = {
+    showTimestamps: true,
+    highlightMentions: true,
+    allowEmojis: true,
+    showUserIds: false,
+    darkMode: false,
+    messageSound: true,
+    playMentionSound: true,
+    autoScroll: true,
+    compactMode: false,
+    fontSize: 15,
+    showTypingIndicator: true,
+    bubbleChat: false,
+    messageAnimations: true,
+    filterSwearWords: false,
+    swearWordReplacement: "***",
+    notifyOnPrivateMessage: true,
+    enableMarkdown: false,
+    showAvatars: false,
+    showJoinLeaveMessages: true,
+    usernameColor: "#4A90E2",
+    muteSystemSounds: false,
+    showUserStatus: true,
+    multiLineInput: true,
+    saveChatHistory: true,
+    showNewMessageBadge: true,
+    messageMaxLength: 500,
+    highlightOwnMessages: true,
+    allowLinks: true,
+    linkPreview: false,
+    timestampFormat24h: false,
+    enableSoundEffects: true,
+    showDateSeparators: true,
+    autoReplaceEmoticons: true,
+    scrollSmooth: true,
+    highlightKeywords: true,
+    keywords: "Emu,Chat",
+    enableBotResponses: false,
+    botPrefix: "!",
+    showBotMessages: true,
+    allowImages: false,
+    maxImageSizeMB: 5,
+    enableFileUpload: false,
+    maxFileSizeMB: 10,
+    allowGIFs: true,
+    showOnlineCount: true,
+    useCustomFont: false,
+    customFontFamily: "Inter, sans-serif",
+    enableTypingSounds: true,
+    typingSoundVolume: 0.3,
+    enableCapsLockWarning: true,
+    maxMessageHistory: 200,
+  };
+
+  // Load settings from localStorage or use defaults
+  let settings = {};
+  function loadSettings() {
+    try {
+      const saved = localStorage.getItem('emuTalkSettings');
+      if (saved) {
+        settings = JSON.parse(saved);
+      } else {
+        settings = {...defaultSettings};
+      }
+    } catch {
+      settings = {...defaultSettings};
+    }
+  }
+  function saveSettings() {
+    localStorage.setItem('emuTalkSettings', JSON.stringify(settings));
+  }
+  loadSettings();
+
+  // Build settings form dynamically
+  const settingsItems = [
+    {key:'showTimestamps', label:'Show Timestamps', type:'checkbox'},
+    {key:'highlightMentions', label:'Highlight Mentions', type:'checkbox'},
+    {key:'allowEmojis', label:'Allow Emojis', type:'checkbox'},
+    {key:'showUserIds', label:'Show User IDs', type:'checkbox'},
+    {key:'darkMode', label:'Dark Mode', type:'checkbox'},
+    {key:'messageSound', label:'Play Message Sound', type:'checkbox'},
+    {key:'playMentionSound', label:'Play Mention Sound', type:'checkbox'},
+    {key:'autoScroll', label:'Auto Scroll Chat', type:'checkbox'},
+    {key:'compactMode', label:'Compact Chat Mode', type:'checkbox'},
+    {key:'fontSize', label:'Chat Font Size', type:'range', min:12, max:22},
+    {key:'showTypingIndicator', label:'Show Typing Indicator', type:'checkbox'},
+    {key:'bubbleChat', label:'Bubble Chat Style', type:'checkbox'},
+    {key:'messageAnimations', label:'Enable Message Animations', type:'checkbox'},
+    {key:'filterSwearWords', label:'Filter Swear Words', type:'checkbox'},
+    {key:'swearWordReplacement', label:'Swear Word Replacement', type:'text'},
+    {key:'notifyOnPrivateMessage', label:'Notify on Private Message', type:'checkbox'},
+    {key:'enableMarkdown', label:'Enable Markdown Formatting', type:'checkbox'},
+    {key:'showAvatars', label:'Show Avatars', type:'checkbox'},
+    {key:'showJoinLeaveMessages', label:'Show Join/Leave Messages', type:'checkbox'},
+    {key:'usernameColor', label:'Username Color', type:'color'},
+    {key:'muteSystemSounds', label:'Mute System Sounds', type:'checkbox'},
+    {key:'showUserStatus', label:'Show User Status', type:'checkbox'},
+    {key:'multiLineInput', label:'Multi-line Input', type:'checkbox'},
+    {key:'saveChatHistory', label:'Save Chat History', type:'checkbox'},
+    {key:'showNewMessageBadge', label:'Show New Message Badge', type:'checkbox'},
+    {key:'messageMaxLength', label:'Max Message Length', type:'range', min:100, max:2000},
+    {key:'highlightOwnMessages', label:'Highlight Own Messages', type:'checkbox'},
+    {key:'allowLinks', label:'Allow Links', type:'checkbox'},
+    {key:'linkPreview', label:'Show Link Preview', type:'checkbox'},
+    {key:'timestampFormat24h', label:'Use 24-hour Timestamp', type:'checkbox'},
+    {key:'enableSoundEffects', label:'Enable Sound Effects', type:'checkbox'},
+    {key:'showDateSeparators', label:'Show Date Separators', type:'checkbox'},
+    {key:'autoReplaceEmoticons', label:'Auto-replace Emoticons', type:'checkbox'},
+    {key:'scrollSmooth', label:'Smooth Scrolling', type:'checkbox'},
+    {key:'highlightKeywords', label:'Highlight Keywords', type:'checkbox'},
+    {key:'keywords', label:'Keywords (comma-separated)', type:'text'},
+    {key:'enableBotResponses', label:'Enable Bot Responses', type:'checkbox'},
+    {key:'botPrefix', label:'Bot Command Prefix', type:'text'},
+    {key:'showBotMessages', label:'Show Bot Messages', type:'checkbox'},
+    {key:'allowImages', label:'Allow Images', type:'checkbox'},
+    {key:'maxImageSizeMB', label:'Max Image Size (MB)', type:'range', min:1, max:50},
+    {key:'enableFileUpload', label:'Enable File Upload', type:'checkbox'},
+    {key:'maxFileSizeMB', label:'Max File Size (MB)', type:'range', min:1, max:100},
+    {key:'allowGIFs', label:'Allow GIFs', type:'checkbox'},
+    {key:'showOnlineCount', label:'Show Online User Count', type:'checkbox'},
+    {key:'useCustomFont', label:'Use Custom Font', type:'checkbox'},
+    {key:'customFontFamily', label:'Custom Font Family', type:'text'},
+    {key:'enableTypingSounds', label:'Enable Typing Sounds', type:'checkbox'},
+    {key:'typingSoundVolume', label:'Typing Sound Volume', type:'range', min:0, max:1, step:0.05},
+    {key:'enableCapsLockWarning', label:'Enable Caps Lock Warning', type:'checkbox'},
+    {key:'maxMessageHistory', label:'Max Message History', type:'range', min:50, max:500},
+  ];
+
+  function createInput(item) {
+    let input;
+    if (item.type === 'checkbox') {
+      input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = settings[item.key];
+      input.id = `setting_${item.key}`;
+    } else if (item.type === 'range') {
+      input = document.createElement('input');
+      input.type = 'range';
+      input.min = item.min;
+      input.max = item.max;
+      if (item.step) input.step = item.step;
+      input.value = settings[item.key];
+      input.id = `setting_${item.key}`;
+    } else if (item.type === 'color') {
+      input = document.createElement('input');
+      input.type = 'color';
+      input.value = settings[item.key];
+      input.id = `setting_${item.key}`;
+    } else {
+      // text
+      input = document.createElement('input');
+      input.type = 'text';
+      input.value = settings[item.key];
+      input.id = `setting_${item.key}`;
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+    }
+    return input;
+  }
+
+  function renderSettingsForm() {
+    settingsForm.innerHTML = '';
+    settingsItems.forEach(item => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'settings-item';
+
+      const label = document.createElement('label');
+      label.htmlFor = `setting_${item.key}`;
+      label.textContent = item.label;
+
+      const input = createInput(item);
+
+      wrapper.appendChild(label);
+
+      if (item.type === 'range') {
+        const valSpan = document.createElement('span');
+        valSpan.className = 'range-value';
+        valSpan.textContent = input.value;
+        input.addEventListener('input', () => {
+          valSpan.textContent = input.value;
+          settings[item.key] = input.type === 'range' ? Number(input.value) : input.value;
+          saveSettings();
+        });
+        wrapper.appendChild(input);
+        wrapper.appendChild(valSpan);
+      } else {
+        input.addEventListener('change', () => {
+          if (input.type === 'checkbox') {
+            settings[item.key] = input.checked;
+          } else {
+            settings[item.key] = input.value;
+          }
+          saveSettings();
+        });
+        wrapper.appendChild(input);
+      }
+
+      settingsForm.appendChild(wrapper);
+    });
+  }
+
+  renderSettingsForm();
+
+  // Modal toggling helpers
   function openModal(modal) {
     modal.classList.add('active');
-    modal.focus();
+    modal.querySelector('.modal-content').focus();
   }
   function closeModal(modal) {
     modal.classList.remove('active');
   }
 
-  // Settings data template
-  const settingsData = [
-    // Typing & display
-    { id: 'typingSounds', label: 'Enable typing sounds', type: 'checkbox', default: false },
-    { id: 'showOnscreenKeyboard', label: 'Show onscreen keyboard', type: 'checkbox', default: false },
-    { id: 'fontSize', label: 'Chat font size', type: 'range', min: 12, max: 28, default: 15 },
-    { id: 'darkTheme', label: 'Enable dark theme', type: 'checkbox', default: false },
-    { id: 'messageAnimations', label: 'Enable message animations', type: 'checkbox', default: true },
-    { id: 'showTimestamps', label: 'Show timestamps on messages', type: 'checkbox', default: true },
-    { id: 'emojiSupport', label: 'Enable emoji support', type: 'checkbox', default: true },
-    { id: 'autoScroll', label: 'Auto scroll chat on new messages', type: 'checkbox', default: true },
-    { id: 'playSendSound', label: 'Play sound on message send', type: 'checkbox', default: true },
-    { id: 'showUserColors', label: 'Show user colors', type: 'checkbox', default: true },
-    // Sounds
-    { id: 'soundVolume', label: 'Master sound volume', type: 'range', min: 0, max: 100, default: 80 },
-    { id: 'typingSoundVolume', label: 'Typing sound volume', type: 'range', min: 0, max: 100, default: 50 },
-    // Visual flair
-    { id: 'enableBackgroundEffects', label: 'Enable background effects', type: 'checkbox', default: false },
-    { id: 'confettiOnJoin', label: 'Show confetti when a user joins', type: 'checkbox', default: false },
-    { id: 'showMessageBadges', label: 'Show badges on messages', type: 'checkbox', default: true },
-    { id: 'compactMode', label: 'Enable compact chat mode', type: 'checkbox', default: false },
-    // Keyboard & input
-    { id: 'enterToSend', label: 'Press Enter to send message', type: 'checkbox', default: true },
-    { id: 'showTypingIndicator', label: 'Show typing indicator', type: 'checkbox', default: true },
-    { id: 'messageMaxLength', label: 'Max message length', type: 'range', min: 20, max: 500, default: 200 },
-    // Fun stuff
-    { id: 'enableAnimations', label: 'Enable fun animations', type: 'checkbox', default: true },
-    { id: 'showTypingPreview', label: 'Show typing preview', type: 'checkbox', default: false },
-    { id: 'autoTranslate', label: 'Auto translate messages (beta)', type: 'checkbox', default: false },
-    { id: 'enableMessageSounds', label: 'Enable message received sounds', type: 'checkbox', default: true },
-    { id: 'showReadReceipts', label: 'Show read receipts', type: 'checkbox', default: false },
-    { id: 'showAvatar', label: 'Show user avatars', type: 'checkbox', default: false },
-    { id: 'avatarSize', label: 'Avatar size', type: 'range', min: 16, max: 64, default: 32 },
-    { id: 'showUserStatus', label: 'Show user online status', type: 'checkbox', default: true },
-    { id: 'enableSoundEffects', label: 'Enable sound effects', type: 'checkbox', default: true },
-    { id: 'enableChatBorders', label: 'Enable chat borders', type: 'checkbox', default: true },
-    { id: 'messageBackgroundOpacity', label: 'Message background opacity', type: 'range', min: 0, max: 100, default: 90 },
-    { id: 'showMentionsHighlight', label: 'Highlight mentions', type: 'checkbox', default: true },
-    { id: 'highlightColor', label: 'Mention highlight color', type: 'select', options: ['#ffff00', '#ff9a9a', '#9aff9a', '#9ac8ff', '#ff9aff'], default: '#ffff00' },
-    { id: 'showTypingSoundWaves', label: 'Show typing sound waves', type: 'checkbox', default: false },
-    { id: 'showMessageLinksPreview', label: 'Show message links preview', type: 'checkbox', default: true },
-    { id: 'enableEmojiReactions', label: 'Enable emoji reactions', type: 'checkbox', default: true },
-    { id: 'enableBotResponses', label: 'Enable bot responses', type: 'checkbox', default: false },
-    { id: 'botResponseDelay', label: 'Bot response delay (seconds)', type: 'range', min: 0, max: 10, default: 2 },
-    { id: 'autoSaveMessages', label: 'Auto-save chat history locally', type: 'checkbox', default: true },
-    { id: 'showMessageEditButton', label: 'Allow editing own messages', type: 'checkbox', default: false },
-    { id: 'showDeleteButton', label: 'Allow deleting own messages', type: 'checkbox', default: false },
-    { id: 'showUserJoinLeaveMessages', label: 'Show user join/leave messages', type: 'checkbox', default: true },
-    { id: 'showChannelTyping', label: 'Show typing in channels', type: 'checkbox', default: true },
-    { id: 'enableMessageFormatting', label: 'Enable markdown formatting', type: 'checkbox', default: true },
-    { id: 'enableCodeBlocks', label: 'Enable code blocks formatting', type: 'checkbox', default: true },
-    { id: 'enableDarkCodeBlocks', label: 'Enable dark style code blocks', type: 'checkbox', default: false },
-    { id: 'enableSoundNotification', label: 'Enable sound notifications', type: 'checkbox', default: true },
-    { id: 'soundNotificationVolume', label: 'Notification sound volume', type: 'range', min: 0, max: 100, default: 70 },
-    { id: 'enableChatAutoScroll', label: 'Enable auto scroll', type: 'checkbox', default: true },
-    { id: 'showChatScrollbar', label: 'Show chat scrollbar', type: 'checkbox', default: true }
-  ];
-
-  // Load and save settings in localStorage
-  const settingsForm = document.getElementById('settingsForm');
-  function loadSettings() {
-    settingsData.forEach(s => {
-      let val = localStorage.getItem('setting_' + s.id);
-      if(val === null) val = s.default;
-      else if(s.type === 'checkbox') val = val === 'true';
-      else if(s.type === 'range') val = Number(val);
-      else if(s.type === 'select') val = val;
-      s.current = val;
-    });
-  }
-  function saveSettings() {
-    settingsData.forEach(s => {
-      localStorage.setItem('setting_' + s.id, s.current);
-    });
-  }
-  function buildSettingsForm() {
-    settingsForm.innerHTML = '';
-    settingsData.forEach(setting => {
-      const group = document.createElement('div');
-      group.className = 'settings-item';
-
-      let input;
-      if(setting.type === 'checkbox') {
-        input = document.createElement('input');
-        input.type = 'checkbox';
-        input.id = setting.id;
-        input.checked = setting.current;
-        input.addEventListener('change', e => {
-          setting.current = e.target.checked;
-          saveSettings();
-          applySettings();
-        });
-      } else if(setting.type === 'range') {
-        input = document.createElement('input');
-        input.type = 'range';
-        input.id = setting.id;
-        input.min = setting.min;
-        input.max = setting.max;
-        input.value = setting.current;
-        input.addEventListener('input', e => {
-          setting.current = e.target.value;
-          labelValue.textContent = e.target.value;
-          saveSettings();
-          applySettings();
-        });
-      } else if(setting.type === 'select') {
-        input = document.createElement('select');
-        input.id = setting.id;
-        setting.options.forEach(opt => {
-          const option = document.createElement('option');
-          option.value = opt;
-          option.textContent = opt;
-          if(opt === setting.current) option.selected = true;
-          input.appendChild(option);
-        });
-        input.addEventListener('change', e => {
-          setting.current = e.target.value;
-          saveSettings();
-          applySettings();
-        });
-      }
-
-      const label = document.createElement('label');
-      label.htmlFor = setting.id;
-      label.textContent = setting.label;
-
-      group.appendChild(input);
-      group.appendChild(label);
-
-      // For range, show value next to slider
-      let labelValue;
-      if(setting.type === 'range') {
-        labelValue = document.createElement('span');
-        labelValue.style.marginLeft = '8px';
-        labelValue.style.minWidth = '30px';
-        labelValue.textContent = setting.current;
-        group.appendChild(labelValue);
-      }
-
-      // Arrange label after checkbox for better UX
-      if(setting.type === 'checkbox') {
-        group.insertBefore(label, input);
-      }
-
-      settingsForm.appendChild(group);
-    });
-  }
-
-  // Apply some settings to chat UI dynamically
-  function applySettings() {
-    const dark = settingsData.find(s => s.id === 'darkTheme').current;
-    if(dark) {
-      document.body.style.background = '#121212';
-      document.body.style.color = '#ddd';
-      messagesEl.style.background = '#222';
-      messagesEl.style.color = '#eee';
-      userListEl.style.background = '#222';
-      userListEl.style.color = '#ddd';
-      document.querySelector('header').style.background = '#222';
-    } else {
-      document.body.style.background = '#fefefe';
-      document.body.style.color = '#222';
-      messagesEl.style.background = '#fff';
-      messagesEl.style.color = '#222';
-      userListEl.style.background = '#ecf0f1';
-      userListEl.style.color = '#34495e';
-      document.querySelector('header').style.background = '#34495e';
-    }
-
-    // Font size
-    const fontSize = settingsData.find(s => s.id === 'fontSize').current;
-    messagesEl.style.fontSize = fontSize + 'px';
-
-    // Compact mode - adjust message margin
-    const compact = settingsData.find(s => s.id === 'compactMode').current;
-    if(compact) {
-      messagesEl.querySelectorAll('.message').forEach(msg => {
-        msg.style.marginBottom = '4px';
-      });
-    } else {
-      messagesEl.querySelectorAll('.message').forEach(msg => {
-        msg.style.marginBottom = '12px';
-      });
-    }
-  }
-
-  // Open/close modal events
   btnSettings.addEventListener('click', () => openModal(modalSettings));
   btnRules.addEventListener('click', () => openModal(modalRules));
-  [...document.querySelectorAll('.modal .close-btn')].forEach(btn => {
-    btn.addEventListener('click', e => {
-      closeModal(e.target.closest('.modal-bg'));
-    });
+
+  modalSettings.querySelector('.close-btn').addEventListener('click', () => closeModal(modalSettings));
+  modalRules.querySelector('.close-btn').addEventListener('click', () => closeModal(modalRules));
+
+  modalSettings.addEventListener('click', e => {
+    if (e.target === modalSettings) closeModal(modalSettings);
+  });
+  modalRules.addEventListener('click', e => {
+    if (e.target === modalRules) closeModal(modalRules);
   });
 
-  // Close modal on clicking outside modal box
-  [modalSettings, modalRules].forEach(modal => {
-    modal.addEventListener('click', e => {
-      if(e.target === modal) closeModal(modal);
-    });
-  });
-
-  // Close modal on Escape key
-  document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') {
-      [modalSettings, modalRules].forEach(modal => {
-        if(modal.classList.contains('active')) closeModal(modal);
-      });
+  // Handle username inline editing UX
+  usernameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      usernameInput.blur();
+      e.preventDefault();
     }
   });
 
-  // Initial load settings, build form and apply
-  loadSettings();
-  buildSettingsForm();
-  applySettings();
+  // Dark mode toggle effect
+  function applyDarkMode(on) {
+    if (on) {
+      document.body.style.background = '#121212';
+      document.body.style.color = '#ddd';
+      messagesEl.style.background = '#181818';
+      usersUl.parentElement.style.background = '#202020';
+      usernameInput.style.color = '#ddd';
+      usernameInput.style.borderBottomColor = 'rgba(255 204 0 / 0.8)';
+      header.style.background = '#222';
+      btnSettings.style.background = 'rgba(255 255 255 / 0.1)';
+      btnRules.style.background = 'rgba(255 255 255 / 0.1)';
+      sendBtn.style.background = '#357ABD';
+      messageInput.style.background = '#222';
+      messageInput.style.color = '#ddd';
+      messageInput.style.borderColor = '#444';
+    } else {
+      document.body.style.background = '#fafafa';
+      document.body.style.color = '#222';
+      messagesEl.style.background = 'white';
+      usersUl.parentElement.style.background = '#f5f7fa';
+      usernameInput.style.color = 'white';
+      usernameInput.style.borderBottomColor = 'transparent';
+      header.style.background = '#4A90E2';
+      btnSettings.style.background = 'rgba(255 255 255 / 0.25)';
+      btnRules.style.background = 'rgba(255 255 255 / 0.25)';
+      sendBtn.style.background = '#4A90E2';
+      messageInput.style.background = 'white';
+      messageInput.style.color = '#222';
+      messageInput.style.borderColor = '#ccc';
+    }
+  }
+  applyDarkMode(settings.darkMode);
+
+  // React to dark mode setting changes
+  document.getElementById('setting_darkMode')?.addEventListener('change', e => {
+    applyDarkMode(e.target.checked);
+  });
+
+  // Caps Lock warning
+  messageInput.addEventListener('keyup', e => {
+    if (settings.enableCapsLockWarning) {
+      if (e.getModifierState && e.getModifierState('CapsLock')) {
+        typingIndicator.textContent = 'Caps Lock is ON';
+      } else {
+        typingIndicator.textContent = '';
+      }
+    }
+  });
+
+  // Save messages locally if enabled
+  function saveChatToLocal(messages) {
+    if (settings.saveChatHistory) {
+      localStorage.setItem('emuTalkChatHistory', JSON.stringify(messages));
+    }
+  }
+  function loadChatFromLocal() {
+    if (!settings.saveChatHistory) return [];
+    try {
+      const data = localStorage.getItem('emuTalkChatHistory');
+      if (data) return JSON.parse(data);
+    } catch {}
+    return [];
+  }
+
+  // Keep message history limited by settings.maxMessageHistory
+  let messageHistory = loadChatFromLocal();
+
+  // We can extend to restore message history on load if desired
+
+  // You can extend with sounds, animations, emojis, etc. based on settings here
+
+  // Handle window unload to clean typing status and presence
+  window.addEventListener('beforeunload', () => {
+    updateTyping(false);
+    userRef.remove();
+  });
 
 </script>
 </body>
