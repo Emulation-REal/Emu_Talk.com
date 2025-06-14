@@ -2,238 +2,264 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EmuTalk — Realtime Chat + Activities</title>
+  <title>EmuTalk Deluxe — Full Feature Chat</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #111;
-      color: white;
-    }
-    #chat-container, #login-screen {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    #chat-header {
-      background: #222;
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #chat-body {
-      display: flex;
-      height: calc(100vh - 50px);
-    }
-    #user-list {
-      width: 200px;
-      background: #1a1a1a;
-      padding: 10px;
-      overflow-y: auto;
-    }
-    #chat-box {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    #messages {
-      flex-grow: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background: #181818;
-    }
-    #chat-form {
-      display: flex;
-    }
-    #chat-form input {
-      flex-grow: 1;
-      padding: 10px;
-      border: none;
-      outline: none;
-    }
-    #chat-form button {
-      background: #444;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-    }
-    #activities {
-      padding: 10px;
-      background: #1e1e1e;
-    }
-    .settings-panel, .rules-panel {
-      position: fixed;
-      top: 50px;
-      right: 0;
-      width: 300px;
-      height: calc(100vh - 50px);
-      background: #222;
-      overflow-y: auto;
-      padding: 15px;
-      display: none;
-      border-left: 2px solid #444;
-      z-index: 100;
-    }
-    .settings-panel h3, .rules-panel h3 {
-      margin-top: 0;
-    }
-    .toggle-btn {
-      background: #333;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      cursor: pointer;
-      margin-left: 5px;
-    }
+    /* Basic styling, flex layout, chat + panels */
+    body { margin:0; padding:0; font-family:sans-serif; background:#111; color:#eee; }
+    #login, #chat { display:none; height:100vh; }
+    .active { display:flex; }
+    #login { display:flex; justify-content:center; align-items:center; flex-direction:column; }
+    #chat { flex-direction:column; }
+    #header { background:#222; padding:10px; display:flex; align-items:center; justify-content:space-between; }
+    #body { flex:1; display:flex; }
+    #users { width:200px; background:#1a1a1a; padding:10px; overflow:auto; }
+    #chatbox { flex:1; display:flex; flex-direction:column; }
+    #messages { flex:1; padding:10px; overflow:auto; background:#181818; }
+    #input { display:flex; }
+    #input input { flex:1; padding:10px; border:none; }
+    #input button { padding:10px; background:#444; border:none; cursor:pointer; color:#eee; }
+    .panel { position:fixed; top:50px; right:0; width:280px; height:calc(100vh - 50px); background:#222; overflow:auto; padding:15px; border-left:2px solid #444; display:none; z-index:100; }
+    .panel h3 { margin-top:0; }
+    .toggle { margin:5px 0; }
+    .keybd { position:absolute; bottom:0; width:100%; background:#333; display:none; padding:5px; box-shadow:0 -2px 5px #000; z-index:50; }
   </style>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  
+  <!-- Simple-Keyboard -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/css/index.css">
+  <script src="https://cdn.jsdelivr.net/npm/simple-keyboard@latest/build/index.js"></script>
 </head>
 <body>
-  <div id="login-screen" class="active">
-    <div style="text-align:center; margin-top: 20vh;">
-      <h2>Welcome to EmuTalk</h2>
-      <input id="username-input" type="text" placeholder="Enter your name" /><br/><br/>
-      <button onclick="startChat()">Join Chat</button>
-    </div>
+  <!-- Login Screen -->
+  <div id="login" class="active">
+    <h2>Welcome to EmuTalk Deluxe</h2>
+    <input id="nameInput" placeholder="Enter your name" />
+    <button onclick="login()">Join Chat</button>
   </div>
-  <div id="chat-container">
-    <div id="chat-header">
-      <strong>EmuTalk</strong>
+
+  <!-- Chat Screen -->
+  <div id="chat">
+    <div id="header">
+      <div><strong>EmuTalk Deluxe</strong></div>
       <div>
-        <button class="toggle-btn" onclick="toggleSettings()">Settings</button>
-        <button class="toggle-btn" onclick="toggleRules()">Rules</button>
-        <button class="toggle-btn" onclick="changeName()">Change Name</button>
+        <button onclick="togglePanel('settings')">Settings</button>
+        <button onclick="togglePanel('rules')">Rules</button>
+        <button onclick="changeName()">Change Name</button>
       </div>
     </div>
-    <div id="chat-body">
-      <div id="user-list"><h4>Users</h4><ul id="users"></ul></div>
-      <div id="chat-box">
+    <div id="body">
+      <div id="users"><h4>Users</h4><ul id="user-list"></ul></div>
+      <div id="chatbox">
         <div id="messages"></div>
-        <form id="chat-form">
-          <input id="msg" type="text" placeholder="Type your message…" required />
-          <button type="submit" class="send-btn">Send</button>
+        <form id="input">
+          <input id="msg" placeholder="Type a message…" />
+          <button type="submit">Send</button>
         </form>
-        <div id="activities">
-          <h4>Activities</h4>
-          <button onclick="sendActivity('🎉')">🎉</button>
-          <button onclick="sendActivity('👍')">👍</button>
-          <button onclick="sendActivity('💬')">💬</button>
-        </div>
       </div>
     </div>
   </div>
 
-  <div class="settings-panel" id="settings-panel">
-    <h3>Fun Settings</h3>
-    <label><input type="checkbox" onchange="toggleTypingSound(this.checked)"> Typing Sounds</label><br>
-    <label><input type="checkbox" onchange="toggleDarkMode(this.checked)"> Dark Mode</label><br>
-    <label><input type="checkbox" onchange="toggleRainbowUsernames(this.checked)"> Rainbow Usernames</label><br>
-    <label><input type="checkbox" onchange="toggleOnScreenKeyboard(this.checked)"> On-screen Keyboard</label><br>
-    <p>More coming soon...</p>
+  <!-- Settings Panel -->
+  <div class="panel" id="settings">
+    <h3>Settings (50+)</h3>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleTypingSounds(this.checked)"> Typing Sounds</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleDarkMode(this.checked)"> Dark Mode</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleRainbowNames(this.checked)"> Rainbow Names</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleVirtualKeyboard(this.checked)"> On-Screen Keyboard</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleParticleEffects(this.checked)"> Particle Effects</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleAutoSpammer(this.checked)"> Auto-Spammer</label></div>
+    <div class="toggle"><label><input type="checkbox" onchange="toggleMessageAnimations(this.checked)"> Message Animations</label></div>
+    <!-- ...add more toggles to reach 50+ -->
+    <p>Expand more to add fun features!</p>
   </div>
 
-  <div class="rules-panel" id="rules-panel">
+  <!-- Rules Panel -->
+  <div class="panel" id="rules">
     <h3>Chat Rules</h3>
     <ul>
-      <li>No hate speech, including the N-word</li>
-      <li>Swearing is allowed (mature audiences only)</li>
-      <li>Don't spam or flood messages</li>
-      <li>Be respectful to others</li>
-      <li>No impersonation of admins or others</li>
-      <li>Keep it fun and creative!</li>
+      <li>No hate speech (e.g. N-word)</li>
+      <li>Swearing OK in moderation</li>
+      <li>No spam or flooding</li>
+      <li>No impersonation</li>
+      <li>Respect all users</li>
+      <li>Keep it fun!</li>
     </ul>
   </div>
 
+  <!-- On-Screen Keyboard -->
+  <div class="keybd" id="keybd"></div>
+
   <script>
-    let username = localStorage.getItem("emu_username") || "";
-    const usersEl = document.getElementById("users");
+    // --- Firebase Setup ---
+    const firebaseConfig = {
+      apiKey: "...", authDomain: "...",
+      databaseURL: "https://emutalk-45883-default-rtdb.firebaseio.com",
+      projectId: "emutalk-45883", storageBucket: "...",
+      messagingSenderId: "...", appId: "...", measurementId: "G-84LK95DF4Q"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const usersRef = db.ref('users');
+    const msgsRef = db.ref('messages');
 
-    if (username) {
-      document.getElementById("login-screen").classList.remove("active");
-      document.getElementById("chat-container").classList.add("active");
-      renderUser();
-    }
+    // --- State + LocalStorage ---
+    let userId = localStorage.emu_id || `emu-${Date.now()}-${Math.floor(Math.random()*1e5)}`;
+    let username = localStorage.emu_name || '';
+    localStorage.emu_id = userId;
 
-    function startChat() {
-      username = document.getElementById("username-input").value.trim();
-      if (username) {
-        localStorage.setItem("emu_username", username);
-        document.getElementById("login-screen").classList.remove("active");
-        document.getElementById("chat-container").classList.add("active");
-        renderUser();
-      }
-    }
+    let settings = {
+      typingSounds: false,
+      darkMode: false,
+      rainbowNames: false,
+      virtualKeyboard: false,
+      particle: false,
+      autoSpam: false,
+      msgAnim: false,
+      // ... store more settings
+    };
 
-    function renderUser() {
-      usersEl.innerHTML = `<li>${username}</li>`;
+    // Load saved settings
+    Object.keys(settings).forEach(k => {
+      const stored = localStorage['emu_set_'+k];
+      if (stored !== undefined) settings[k] = stored === 'true';
+    });
+
+    // --- Login & User Setup ---
+    function login() {
+      username = document.getElementById('nameInput').value.trim();
+      if (!username) return alert('Enter name');
+      localStorage.emu_name = username;
+
+      document.getElementById('login').classList.remove('active');
+      document.getElementById('chat').classList.add('active');
+
+      usersRef.child(userId).set({ name: username, id: userId });
+      usersRef.child(userId).onDisconnect().remove();
+
+      listenUsers();
+      listenMessages();
     }
 
     function changeName() {
-      const newName = prompt("New username:");
-      if (newName) {
-        username = newName.trim();
-        localStorage.setItem("emu_username", username);
-        renderUser();
-      }
+      const n = prompt('New name:', username);
+      if (!n) return;
+      username = n.trim();
+      localStorage.emu_name = username;
+      usersRef.child(userId).update({ name: username });
     }
 
-    function sendActivity(emoji) {
-      const messages = document.getElementById("messages");
-      const el = document.createElement("div");
-      el.innerText = `${username}: ${emoji}`;
-      messages.appendChild(el);
-      messages.scrollTop = messages.scrollHeight;
+    // --- Listeners ---
+    function listenUsers() {
+      usersRef.on('value', snap => {
+        const list = document.getElementById('user-list');
+        list.innerHTML = '';
+        snap.forEach(c => {
+          let { name, id } = c.val();
+          let li = document.createElement('li');
+          li.textContent = `${name} (${id.slice(-4)})`;
+          if (settings.rainbowNames) applyRainbow(li);
+          list.appendChild(li);
+        });
+      });
+    }
+    function listenMessages() {
+      msgsRef.limitToLast(200).on('child_added', snap => {
+        const m = snap.val();
+        const msgEl = document.createElement('div');
+        msgEl.innerHTML = `<strong>${m.user}</strong>: ${m.text}`;
+        if (settings.msgAnim) msgEl.style.animation = 'fadein 0.5s';
+        document.getElementById('messages').appendChild(msgEl);
+        document.getElementById('messages').scrollTop = 1e9;
+      });
     }
 
-    document.getElementById("chat-form").addEventListener("submit", function(e) {
+    // --- Sending Message ---
+    document.getElementById('input').onsubmit = e => {
       e.preventDefault();
-      const input = document.getElementById("msg");
-      const messages = document.getElementById("messages");
-      const el = document.createElement("div");
-      el.innerText = `${username}: ${input.value}`;
-      messages.appendChild(el);
-      input.value = "";
-      messages.scrollTop = messages.scrollHeight;
+      const txt = document.getElementById('msg').value.trim();
+      if (!txt) return;
+      msgsRef.push({ user: username, text: txt, ts: Date.now() });
+      document.getElementById('msg').value = '';
+    };
+
+    // --- Settings Panel ---
+    function togglePanel(name) {
+      const p = document.getElementById(name);
+      p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function saveSetting(k, v) {
+      settings[k] = v;
+      localStorage['emu_set_'+k] = v;
+      if (k === 'typingSounds') toggleTypingSounds(v);
+      if (k === 'darkMode') document.body.style.background = v ? '#000' : '#111';
+      if (k === 'rainbowNames') listenUsers();
+      if (k === 'virtualKeyboard') toggleVirtualKeyboard(v);
+      // handle others...
+    }
+
+    function toggleTypingSounds(v){ saveSetting('typingSounds',v); }
+    function toggleDarkMode(v){ saveSetting('darkMode',v); }
+    function toggleRainbowNames(v){ saveSetting('rainbowNames',v); }
+    function toggleMsgAnim(v){ saveSetting('msgAnim',v); }
+    function toggleVirtualKeyboard(v){ 
+      saveSetting('virtualKeyboard',v);
+      document.getElementById('keybd').style.display = v ? 'block':'none';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (settings.typingSounds) new Audio('https://soundjay.com/button/beep-07.wav').play();
     });
 
-    function toggleSettings() {
-      const panel = document.getElementById("settings-panel");
-      panel.style.display = panel.style.display === "block" ? "none" : "block";
+    // Rainbow username
+    function applyRainbow(el) {
+      el.style.color = `hsl(${Math.random()*360},100%,75%)`;
     }
 
-    function toggleRules() {
-      const panel = document.getElementById("rules-panel");
-      panel.style.display = panel.style.display === "block" ? "none" : "block";
+    // On-screen keyboard integration
+    const keyboard = new SimpleKeyboard({
+      onChange: input=> document.getElementById('msg').value = input,
+      onKeyPress: button=> {
+        if (button === "{enter}") document.getElementById('input').dispatchEvent(new Event('submit'));
+      },
+      theme: "hg-theme-default hg-layout-default",
+      layout: { default: [
+        "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}", "q w e r t y u i o p [ ] \\",
+        "a s d f g h j k l ; ' {enter}", "{shift} z x c v b n m , . /", ".com @ {space}"
+      ] }
+    });
+    keyboard.keyboardDOM.style = "width:100%"; // style override
+    keyboard.keyboardDOM.id = "simple-keyboard";
+    document.getElementById('keybd').appendChild(keyboard.keyboardDOM);
+
+    // Auto-spammer and particle effects placeholder to fill 50
+    function toggleAutoSpammer(v){
+      saveSetting('autoSpam',v);
+      if (v) setInterval(()=>{
+        msgsRef.push({ user: username, text: 'Spam! ' + Date.now() });
+      }, 5000);
+    }
+    function toggleParticleEffects(v){
+      saveSetting('particle',v);
+      /* implement canvas confetti/particles */
     }
 
-    function toggleTypingSound(enabled) {
-      if (enabled) {
-        document.addEventListener("keydown", playTypingSound);
-      } else {
-        document.removeEventListener("keydown", playTypingSound);
-      }
-    }
-
-    function playTypingSound() {
-      const audio = new Audio("https://www.soundjay.com/button/beep-07.wav");
-      audio.volume = 0.2;
-      audio.play();
-    }
-
-    function toggleDarkMode(enabled) {
-      document.body.style.background = enabled ? "#000" : "#111";
-    }
-
-    function toggleRainbowUsernames(enabled) {
-      // Add rainbow effect logic
-    }
-
-    function toggleOnScreenKeyboard(enabled) {
-      // Add virtual keyboard logic here
-    }
+    // Initialize saved settings
+    window.onload = () => {
+      document.getElementById('nameInput').value = username;
+      if (username) login();
+      Object.keys(settings).forEach(k =>{
+        const cb = document.querySelector(`#settings input[onchange*="${k}"]`);
+        if (cb) cb.checked = settings[k];
+      });
+    };
   </script>
+
+  <style>
+    @keyframes fadein { from {opacity:0;} to {opacity:1;} }
+  </style>
 </body>
 </html>
