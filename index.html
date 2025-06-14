@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EmuTalk - Multiplayer Chat</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #chat-container {
+      display: flex;
+      width: 90%;
+      max-width: 1000px;
+      height: 80vh;
+      background: #1c1c1c;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #444;
+    }
+
+    #user-list {
+      width: 25%;
+      padding: 10px;
+      background: #222;
+      border-right: 2px solid #333;
+    }
+
+    #users {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    #chat-box {
+      width: 75%;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+
+    #messages div {
+      margin-bottom: 5px;
+    }
+
+    #chat-form {
+      display: flex;
+    }
+
+    #msg {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+      border-radius: 5px 0 0 5px;
+    }
+
+    button {
+      padding: 10px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+  </style>
+
+  <!-- Firebase Libraries -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="user-list">
+      <h3>Users</h3>
+      <ul id="users"></ul>
+    </div>
+    <div id="chat-box">
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input type="text" id="msg" placeholder="Type a message..." autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 🔐 Replace this with your own Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MSG_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Prompt for username
+    const username = prompt("Enter your name:") || "Anonymous";
+    const userId = Date.now() + "-" + Math.floor(Math.random() * 10000);
+
+    // References
+    const usersRef = db.ref("users");
+    const messagesRef = db.ref("messages");
+
+    const usersList = document.getElementById("users");
+    const messagesDiv = document.getElementById("messages");
+    const chatForm = document.getElementById("chat-form");
+    const msgInput = document.getElementById("msg");
+
+    // Add self to user list
+    usersRef.child(userId).set(username);
+    usersRef.child(userId).onDisconnect().remove();
+
+    // Update user list
+    usersRef.on("value", (snapshot) => {
+      usersList.innerHTML = "";
+      snapshot.forEach((child) => {
+        const li = document.createElement("li");
+        li.textContent = child.val();
+        usersList.appendChild(li);
+      });
+    });
+
+    // Receive messages
+    messagesRef.limitToLast(100).on("child_added", (snapshot) => {
+      const msgData = snapshot.val();
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${msgData.user}:</strong> ${msgData.text}`;
+      messagesDiv.appendChild(div);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+
+    // Send messages
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = msgInput.value.trim();
+      if (text) {
+        messagesRef.push({ user: username, text });
+        msgInput.value = "";
+      }
+    });
+  </script>
+</body>
+</html>
